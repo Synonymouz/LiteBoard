@@ -8,87 +8,67 @@
 
 LiteBoard::LiteBoard(){}
 
-void LiteBoard::begin(int rows, int columns, int sweepTime) 
+void LiteBoard::begin(int rows, int columns, int colors, int sweepTime) 
 {
 	_rows = rows;
 	_columns = columns;
+	_colors = colors;
 	_sweepTime = sweepTime;
 
 	// set pinmodes
-	for(int c = 0; c < columns; c++)
-    {
-    	pinMode(_columnPower[c], OUTPUT);
-    	pinMode(_redGround[c], OUTPUT);
-    	pinMode(_greenGround[c], OUTPUT);
-    	pinMode(_blueGround[c], OUTPUT);
-    	pinMode(_sensorPower[c], INPUT);
-    	pinMode(_sensorGround[c], OUTPUT);
-    	digitalWrite(_sensorPower[c], HIGH);
+	for(int c = 0; c < _columns; c++)
+  	{
+    	for(int r = 0; r < _rows; r++)
+    	{
+      		for(int l = 0; l < _colors; l++)
+      		{
+		        pinMode(_LEDColumns[c],OUTPUT);
+		        digitalWrite(_LEDColumns[c], LOW);
+		        pinMode(_MagColumns[c],OUTPUT);
+		        digitalWrite(_MagColumns[c], LOW);
+		        pinMode(_LEDRows[r][l],OUTPUT);
+		        digitalWrite(_LEDRows[r][l], HIGH);
+		        pinMode(_MagRows[r],INPUT);
+      		}
+    	}
     }
-    disableAllLEDs();
 }
 
-void LiteBoard::enableRedLED(int row, int column)
+void LiteBoard::enableLED(int row, int column, int color)
 {
-	digitalWrite(_redGround[row], LOW);
-	digitalWrite(_columnPower[column], HIGH);
+	_DisplayOutput[row][column][color] = 1;
 }
 
-void LiteBoard::disableRedLED(int row, int column)
+void LiteBoard::disableLED(int row, int column, int color)
 {
-	digitalWrite(_redGround[row], LOW);
-	digitalWrite(_columnPower[column], LOW);
-}
-
-void LiteBoard::enableGreenLED(int row, int column)
-{
-	digitalWrite(_greenGround[row], LOW);
-	digitalWrite(_columnPower[column], HIGH);
-}
-
-void LiteBoard::disableGreenLED(int row, int column)
-{
-	digitalWrite(_greenGround[row], LOW);
-	digitalWrite(_columnPower[column], LOW);
-}
-
-void LiteBoard::enableBlueLED(int row, int column)
-{
-	digitalWrite(_blueGround[row], LOW);
-	digitalWrite(_columnPower[column], HIGH);
-}
-
-void LiteBoard::LiteBoard::disableBlueLED(int row, int column)
-{
-	digitalWrite(_blueGround[row], LOW);
-	digitalWrite(_columnPower[column], LOW);
+	_DisplayOutput[row][column][color] = 0;
 }
 
 void LiteBoard::enableAllLEDs() 
 {
-	for(int r = 0; r < _rows; r++) 
+	for(int r = 0; r < _rows; r++)
 	{
-		digitalWrite(_redGround[r], LOW);
-		digitalWrite(_greenGround[r], LOW);
-		digitalWrite(_blueGround[r], LOW);
-	}
-	for(int c = 0; c < _columns; c++) 
-	{
-		digitalWrite(_columnPower[c], HIGH);
+		for(int c = 0; c < _columns; c++) 
+		{
+			for(int l = 0; l < _colors; l++)
+			{
+				_DisplayOutput[r][c][l] = 1;
+			}
+		}
 	}
 }
 
 void LiteBoard::disableAllLEDs() 
 {
-	for(int r = 0; r < _rows; r++) 
+	for(int r = 0; r < _rows; r++)
 	{
-		digitalWrite(_redGround[r], HIGH);
-		digitalWrite(_greenGround[r], HIGH);
-		digitalWrite(_blueGround[r], HIGH);
-	}
-	for(int c = 0; c < _columns; c++) 
-	{
-		digitalWrite(_columnPower[c], LOW);
+		for(int c = 0; c < _columns; c++) 
+		{
+			for(int l = 0; l < _colors; l++)
+			{
+				_DisplayOutput[r][c][l] = 0;
+			}
+		}
 	}
 }
 
@@ -98,25 +78,17 @@ void LiteBoard::setLEDOutput(int LEDOutput[6][6][3])
 	{
 		for(int c = 0; c < _columns; c++) 
 		{
-			for(int rgb = 0; rgb < 3; rgb++)
+			for(int l = 0; l < _colors; l++)
 			{
-				_LEDOutput[r][c][rgb] = LEDOutput[r][c][rgb];
+				_DisplayOutput[r][c][l] = LEDOutput[r][c][l];
 			}
 		}
 	}
-	
 }
 
-boolean LiteBoard::getMagnetInputAt(int column)
+int LiteBoard::getMagnetInputAt(int row, int column)
 {
-	if(digitalRead(_sensorPower[column]) == HIGH) 
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return _MagSwitch[row][column];
 }
 
 void LiteBoard::setSweepTime(int sweepTime)
@@ -126,47 +98,37 @@ void LiteBoard::setSweepTime(int sweepTime)
 
 void LiteBoard::sweep()
 {
-	for(int r = 0; r < _rows; r++)
-	{
-		disableAllLEDs(); // wipe board
-		for (int c = 0; c < _columns; c++)
-		{
-			// LED Control
-			for (int rgb = 0; rgb < 3; rgb++) 
-			{
-				// turn on current row
-				if(_LEDOutput[r][c][rgb] == 1 && rgb == 0) 
-				{
-					digitalWrite(_redGround[r], LOW);
-					digitalWrite(_columnPower[c], HIGH);
-				}
-				else if(_LEDOutput[r][c][rgb] == 0 && rgb == 0) 
-				{
-					digitalWrite(_redGround[r], HIGH);
-				}
-				else if(_LEDOutput[r][c][rgb] == 1 && rgb == 1) 
-				{
-					digitalWrite(_greenGround[r], LOW);
-					digitalWrite(_columnPower[c], HIGH);
-				}
-				else if(_LEDOutput[r][c][rgb] == 0 && rgb == 1) 
-				{
-					digitalWrite(_greenGround[r], HIGH);
-				}
-				else if(_LEDOutput[r][c][rgb] == 1 && rgb == 2) 
-				{
-					digitalWrite(_blueGround[r], LOW);
-					digitalWrite(_columnPower[c], HIGH);
-				}
-				else if(_LEDOutput[r][c][rgb] == 0 && rgb == 2) 
-				{
-					digitalWrite(_blueGround[r], HIGH);
-				}
-			}
+  	for(int c = 0; c < _columns; c++)
+  	{
+    	digitalWrite(_MagColumns[c], HIGH);
+    	digitalWrite(_LEDColumns[c], HIGH);
+    
+    	for(int r = 0; r < _rows; r++)
+    	{
+      		for(int l = 0; l < _colors; l++)
+      		{
+        		if(_DisplayOutput[c][r][l] == 1)
+        		{
+          			digitalWrite(_LEDRows[r][l], LOW);
+        		}
+        		else
+        		{
+					digitalWrite(_LEDRows[r][l], HIGH);	
+        		}
+      		}
 
-			// Magnet Control
-			_MagnetInput[r][c] = getMagnetInputAt(c);
-		}
-		delay(_sweepTime); // delay for preset time
-	}
+      		if(digitalRead(_MagRows[r]) == 1)
+	      	{
+	        	_MagSwitch[c][r] = 1;
+	      	}
+	      	else if(digitalRead(_MagRows[r]) == 0)
+	      	{
+	        	_MagSwitch[c][r] = 0;
+	      	}
+      	}
+
+	    delay(_sweepTime);
+	    digitalWrite(_MagColumns[c], LOW);
+	    digitalWrite(_LEDColumns[c], LOW);
+  	}
 }

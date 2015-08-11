@@ -1,15 +1,10 @@
 LiteBoard	KEYWORD1
 begin	KEYWORD2
-enableRedLED	KEYWORD2
-disableRedLED	KEYWORD2
-enableGreenLED	KEYWORD2
-disableGreenLED	KEYWORD2
-enableBlueLED	KEYWORD2
-disableBlueLED	KEYWORD2
+enableLED	KEYWORD2
+disableLED	KEYWORD2
 enableAllLEDs	KEYWORD2
 disableAllLEDs	KEYWORD2
 setLEDOutput	KEYWORD2
 getMagnetInputAt	KEYWORD2
-getMagnetInput	KEYWORD2
 setSweepTime	KEYWORD2
 sweep	KEYWORD2
