@@ -8,12 +8,13 @@
 
 LiteBoard::LiteBoard(){}
 
-void LiteBoard::begin(int rows, int columns, int colors, int sweepTime) 
+void LiteBoard::begin(int rows, int columns, int colors, int sweepTime, int cycleTime) 
 {
 	_rows = rows;
 	_columns = columns;
 	_colors = colors;
 	_sweepTime = sweepTime;
+	_cycleTime = cycleTime;
 
 	// set pinmodes
 	for(int c = 0; c < _columns; c++)
@@ -84,6 +85,22 @@ void LiteBoard::setLEDOutput(int LEDOutput[6][6][3])
 			}
 		}
 	}
+	sweep();
+}
+
+void LiteBoard::cycleLEDOutput(int LEDOutput[6][6][3], int cycles)
+{
+	for(int r = 0; r < _rows; r++)
+	{
+		for(int c = 0; c < _columns; c++) 
+		{
+			for(int l = 0; l < _colors; l++)
+			{
+				_DisplayOutput[r][c][l] = LEDOutput[r][c][l];
+			}
+		}
+	}
+	cycle(cycles);
 }
 
 int LiteBoard::getMagnetInputAt(int row, int column)
@@ -96,39 +113,60 @@ void LiteBoard::setSweepTime(int sweepTime)
 	_sweepTime = sweepTime;
 }
 
+void LiteBoard::setCycleTime(int cycleTime)
+{
+	_cycleTime = cycleTime;
+}
+
+void LiteBoard::allOff()
+{
+	for(int i = 0; i < _rows; i++)
+	{
+		digitalWrite(_LEDRows[i][0], HIGH);
+		digitalWrite(_LEDRows[i][1], HIGH);
+		digitalWrite(_LEDRows[i][2], HIGH);
+		digitalWrite(_LEDColumns[i], LOW);
+	}
+}
+
 void LiteBoard::sweep()
 {
-  	for(int c = 0; c < _columns; c++)
+  	for(int r = 0; r < _rows; r++)
   	{
-    	digitalWrite(_MagColumns[c], HIGH);
-    	digitalWrite(_LEDColumns[c], HIGH);
-    
-    	for(int r = 0; r < _rows; r++)
-    	{
-      		for(int l = 0; l < _colors; l++)
-      		{
-        		if(_DisplayOutput[c][r][l] == 1)
-        		{
-          			digitalWrite(_LEDRows[r][l], LOW);
-        		}
-        		else
-        		{
-					digitalWrite(_LEDRows[r][l], HIGH);	
-        		}
-      		}
-
-      		if(digitalRead(_MagRows[r]) == 1)
-	      	{
-	        	_MagSwitch[c][r] = 1;
-	      	}
-	      	else if(digitalRead(_MagRows[r]) == 0)
-	      	{
-	        	_MagSwitch[c][r] = 0;
-	      	}
-      	}
-
-	    delay(_sweepTime);
-	    digitalWrite(_MagColumns[c], LOW);
-	    digitalWrite(_LEDColumns[c], LOW);
+  		digitalWrite(_MagColumns[r], HIGH);
+  		for(int l = 0; l < _colors; l++)
+  		{
+  			allOff();
+			digitalWrite(_LEDRows[r][l], LOW);
+			for(int c = 0; c < _columns; c++)
+			{
+    			if(_DisplayOutput[c][r][l] == 1)
+    			{
+      				digitalWrite(_LEDColumns[c], HIGH);
+    			}
+    			else
+    			{
+					digitalWrite(_LEDColumns[c], LOW);
+    			}
+    			if(digitalRead(_MagRows[c]) == 1)
+    			{
+    				_MagSwitch[r][c] = 1;
+    			}
+    			else if(digitalRead(_MagRows[c]) == 0) 
+    			{
+    				_MagSwitch[r][c] = 0;
+    			}
+  			}
+  			delay(_sweepTime);
+  		}
   	}
+}
+
+void LiteBoard::cycle(int cycles)
+{
+	for(int i = 0; i < cycles; i++)
+	{
+		sweep();
+		delay(_cycleTime);
+	}
 }

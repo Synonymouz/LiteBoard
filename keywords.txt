@@ -7,4 +7,5 @@ disableAllLEDs	KEYWORD2
 setLEDOutput	KEYWORD2
 getMagnetInputAt	KEYWORD2
 setSweepTime	KEYWORD2
-sweep	KEYWORD2
+cycleLEDOutput	KEYWORD2
+setCycleTime	KEYWORD2
