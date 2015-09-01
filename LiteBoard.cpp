@@ -37,12 +37,12 @@ void LiteBoard::begin(int rows, int columns, int colors, int sweepTime, int cycl
 
 void LiteBoard::enableLED(int row, int column, int color)
 {
-	_DisplayOutput[row][column][color] = 1;
+	_DisplayOutput.output[row][column][color] = 1;
 }
 
 void LiteBoard::disableLED(int row, int column, int color)
 {
-	_DisplayOutput[row][column][color] = 0;
+	_DisplayOutput.output[row][column][color] = 0;
 }
 
 void LiteBoard::enableAllLEDs() 
@@ -53,7 +53,7 @@ void LiteBoard::enableAllLEDs()
 		{
 			for(int l = 0; l < _colors; l++)
 			{
-				_DisplayOutput[r][c][l] = 1;
+				_DisplayOutput.output[r][c][l] = 1;
 			}
 		}
 	}
@@ -67,7 +67,7 @@ void LiteBoard::disableAllLEDs()
 		{
 			for(int l = 0; l < _colors; l++)
 			{
-				_DisplayOutput[r][c][l] = 0;
+				_DisplayOutput.output[r][c][l] = 0;
 			}
 		}
 	}
@@ -81,7 +81,7 @@ void LiteBoard::setLEDOutput(int LEDOutput[6][6][3])
 		{
 			for(int l = 0; l < _colors; l++)
 			{
-				_DisplayOutput[r][c][l] = LEDOutput[r][c][l];
+				_DisplayOutput.output[r][c][l] = LEDOutput[r][c][l];
 			}
 		}
 	}
@@ -96,7 +96,7 @@ void LiteBoard::cycleLEDOutput(int LEDOutput[6][6][3], int cycles)
 		{
 			for(int l = 0; l < _colors; l++)
 			{
-				_DisplayOutput[r][c][l] = LEDOutput[r][c][l];
+				_DisplayOutput.output[r][c][l] = LEDOutput[r][c][l];
 			}
 		}
 	}
@@ -105,7 +105,7 @@ void LiteBoard::cycleLEDOutput(int LEDOutput[6][6][3], int cycles)
 
 int LiteBoard::getMagnetInputAt(int row, int column)
 {
-	return _MagSwitch[row][column];
+	return _MagSwitch.input[row][column];
 }
 
 void LiteBoard::setSweepTime(int sweepTime)
@@ -140,7 +140,7 @@ void LiteBoard::sweep()
 			digitalWrite(_LEDRows[r][l], LOW);
 			for(int c = 0; c < _columns; c++)
 			{
-    			if(_DisplayOutput[c][r][l] == 1)
+    			if(_DisplayOutput.output[c][r][l] == 1)
     			{
       				digitalWrite(_LEDColumns[c], HIGH);
     			}
@@ -150,11 +150,11 @@ void LiteBoard::sweep()
     			}
     			if(digitalRead(_MagRows[c]) == 1)
     			{
-    				_MagSwitch[r][c] = 1;
+    				_MagSwitch.input[c][r] = 1;
     			}
     			else if(digitalRead(_MagRows[c]) == 0) 
     			{
-    				_MagSwitch[r][c] = 0;
+    				_MagSwitch.input[c][r] = 0;
     			}
   			}
   			delay(_sweepTime);
@@ -169,4 +169,15 @@ void LiteBoard::cycle(int cycles)
 		sweep();
 		delay(_cycleTime);
 	}
+}
+
+DisplayOutput LiteBoard::getDisplayOutput()
+{
+	return _DisplayOutput;
+}
+
+MagSwitch LiteBoard::getMagnetInput()
+{
+	sweep();
+	return _MagSwitch;
 }

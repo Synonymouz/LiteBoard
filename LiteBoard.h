@@ -17,9 +17,19 @@
 
 #include "Arduino.h"
 
+struct DisplayOutput
+{
+  int output[6][6][3];
+};
+struct MagSwitch
+{
+  int input[6][6]; // [row, column]  
+};
+
 class LiteBoard
 {
   public:
+    // input and output states of the board
     LiteBoard();
     void begin(int rows, int columns, int colors, int sweepTime, int cycleTime);
     void enableLED(int row, int column, int color);
@@ -31,10 +41,14 @@ class LiteBoard
     int getMagnetInputAt(int row, int column);
     void setSweepTime(int sweepTime);
     void setCycleTime(int cycleTime);
+    DisplayOutput _DisplayOutput;
+    MagSwitch _MagSwitch;
+    DisplayOutput getDisplayOutput();
+    MagSwitch getMagnetInput();
 
   private:
-    void allOff();
     void sweep(); // sweeps pattern left to right and top down
+    void allOff();
     void cycle(int cycles);
 
   	// physical constants
@@ -57,10 +71,6 @@ class LiteBoard
      {30, 11, 49},
      {28, 12, 51},
      {26, 13, 53}};
-  	
-  	// input and output states of the board
-  	int _DisplayOutput[6][6][3] ; // [row, column, color(r,g,b)]
-  	int _MagSwitch[6][6]; // [row, column]
 };
 
 #endif
