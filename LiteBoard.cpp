@@ -105,6 +105,7 @@ void LiteBoard::cycleLEDOutput(int LEDOutput[6][6][3], int cycles)
 
 int LiteBoard::getMagnetInputAt(int row, int column)
 {
+	sweep();
 	return _MagSwitch.input[row][column];
 }
 
@@ -159,6 +160,7 @@ void LiteBoard::sweep()
   			}
   			delay(_sweepTime);
   		}
+  		digitalWrite(_MagColumns[r], LOW);
   	}
 }
 

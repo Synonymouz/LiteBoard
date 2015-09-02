@@ -60,8 +60,8 @@ class LiteBoard
 
   	// pins
   	// Input
-    int _MagColumns[6] = {A0, A1, A2, A3, A4, A5};
-    int _MagRows[6] = {A8, A9, A10, A11, A12, A13};
+    int _MagColumns[6] = {A5, A4, A3, A2, A1, A0};
+    int _MagRows[6] = {A15, A14, A13, A12, A11, A10};
   	// Output
     int _LEDColumns[6] = {14, 15, 16, 17, 18, 19};
     int _LEDRows[6][3]=
